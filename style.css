@@ -289,10 +289,64 @@ body {
 }
 
 /* ==========================================================================
-   KPI Summary Section
+   KPI Summary Section & Toolbar
    ========================================================================== */
+.kpi-toolbar {
+  padding: 14px 24px 0 24px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.kpi-toolbar-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.kpi-mode-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(59, 130, 246, 0.15);
+  border: 1px solid rgba(59, 130, 246, 0.35);
+  color: #93c5fd;
+  border-radius: 12px;
+  font-weight: 600;
+  transition: var(--transition);
+}
+
+.kpi-mode-badge.manual {
+  background: rgba(234, 179, 8, 0.15);
+  border-color: rgba(234, 179, 8, 0.4);
+  color: #fde047;
+}
+
+.btn-kpi-edit {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  color: #cbd5e1;
+  font-size: 12px;
+  padding: 5px 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: var(--transition);
+}
+.btn-kpi-edit:hover {
+  background: #2563eb;
+  border-color: #3b82f6;
+  color: #fff;
+  box-shadow: 0 0 10px rgba(59, 130, 246, 0.4);
+}
+
 .kpi-section {
-  padding: 14px 24px;
+  padding: 10px 24px 14px 24px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   gap: 14px;

@@ -27,6 +27,7 @@ const AppState = {
     fallbackToMock: localStorage.getItem('nfa_fallback_mock') !== 'false',
     refreshInterval: parseInt(localStorage.getItem('nfa_refresh_interval') || '300000', 10)
   },
+  kpiOverride: JSON.parse(localStorage.getItem('nfa_kpi_override') || 'null'),
   refreshTimer: null
 };
 
@@ -498,6 +499,37 @@ function renderMapMarkers() {
 // KPI Summary Calculation & Render
 // ============================================================================
 function updateKPICards() {
+  const badge = document.getElementById('kpiModeBadge');
+
+  // If manual KPI override mode is enabled, display user's customized numbers
+  if (AppState.kpiOverride && AppState.kpiOverride.enabled) {
+    const o = AppState.kpiOverride;
+    document.getElementById('kpiTotalFires').innerText = o.total;
+    document.getElementById('kpiActiveFires').innerText = o.active;
+    document.getElementById('kpiClearedFires').innerText = o.cleared;
+    const clearRate = o.total > 0 ? ((o.cleared / o.total) * 100).toFixed(1) : '100.0';
+    document.getElementById('kpiClearRate').innerText = `진화율 ${clearRate}%`;
+    const deaths = parseInt(o.deaths || 0, 10);
+    const injuries = parseInt(o.injuries || 0, 10);
+    document.getElementById('kpiCasualties').innerText = deaths + injuries;
+    const casSub = document.getElementById('kpiCasualtyDetails');
+    if (casSub) casSub.innerText = `(사망 ${deaths} / 부상 ${injuries})`;
+    document.getElementById('kpiResourcesVehicles').innerText = o.vehicles;
+    document.getElementById('kpiResourcesPersonnel').innerText = `/ 대원 ${o.personnel}명`;
+    document.getElementById('feedCountBadge').innerText = `${o.total}건`;
+
+    if (badge) {
+      badge.innerText = '수동 보정 모드';
+      badge.classList.add('manual');
+    }
+    return;
+  }
+
+  if (badge) {
+    badge.innerText = '자동 집계 모드';
+    badge.classList.remove('manual');
+  }
+
   const list = AppState.incidents;
   const total = list.length;
   const active = list.filter(i => i.status === 'active').length;
@@ -1011,7 +1043,84 @@ function initModals() {
 
   btnOpenSafetyModal?.addEventListener('click', () => safetyModal.classList.add('open'));
   btnCloseSafetyModal?.addEventListener('click', () => safetyModal.classList.remove('open'));
-  btnCloseSafetyModalBottom?.addEventListener('click', () => safetyModal.classList.remove('open'));
+  // KPI Manual Edit Modal
+  const kpiEditModal = document.getElementById('kpiEditModal');
+  const btnOpenKpiEditModal = document.getElementById('btnOpenKpiEditModal');
+  const btnCloseKpiEditModal = document.getElementById('btnCloseKpiEditModal');
+  const btnSaveKpiEdit = document.getElementById('btnSaveKpiEdit');
+  const btnResetKpiAuto = document.getElementById('btnResetKpiAuto');
+  const toggleKpi = document.getElementById('kpiOverrideToggle');
+
+  const inTotal = document.getElementById('editTotalFires');
+  const inActive = document.getElementById('editActiveFires');
+  const inCleared = document.getElementById('editClearedFires');
+  const inDeaths = document.getElementById('editDeaths');
+  const inInjuries = document.getElementById('editInjuries');
+  const inVehicles = document.getElementById('editVehicles');
+  const inPersonnel = document.getElementById('editPersonnel');
+
+  btnOpenKpiEditModal?.addEventListener('click', () => {
+    if (AppState.kpiOverride && AppState.kpiOverride.enabled) {
+      const o = AppState.kpiOverride;
+      if (toggleKpi) toggleKpi.checked = true;
+      if (inTotal) inTotal.value = o.total;
+      if (inActive) inActive.value = o.active;
+      if (inCleared) inCleared.value = o.cleared;
+      if (inDeaths) inDeaths.value = o.deaths;
+      if (inInjuries) inInjuries.value = o.injuries;
+      if (inVehicles) inVehicles.value = o.vehicles;
+      if (inPersonnel) inPersonnel.value = o.personnel;
+    } else {
+      if (toggleKpi) toggleKpi.checked = true;
+      if (inTotal) inTotal.value = document.getElementById('kpiTotalFires')?.innerText || 38;
+      if (inActive) inActive.value = document.getElementById('kpiActiveFires')?.innerText || 5;
+      if (inCleared) inCleared.value = document.getElementById('kpiClearedFires')?.innerText || 33;
+      if (inDeaths) inDeaths.value = 0;
+      if (inInjuries) inInjuries.value = 2;
+      if (inVehicles) inVehicles.value = document.getElementById('kpiResourcesVehicles')?.innerText || 142;
+      if (inPersonnel) inPersonnel.value = 486;
+    }
+    kpiEditModal?.classList.add('open');
+  });
+
+  btnCloseKpiEditModal?.addEventListener('click', () => {
+    kpiEditModal?.classList.remove('open');
+  });
+
+  btnSaveKpiEdit?.addEventListener('click', () => {
+    const isEnabled = toggleKpi ? toggleKpi.checked : true;
+    const total = parseInt(inTotal?.value, 10) || 0;
+    const active = parseInt(inActive?.value, 10) || 0;
+    const cleared = parseInt(inCleared?.value, 10) || 0;
+    const deaths = parseInt(inDeaths?.value, 10) || 0;
+    const injuries = parseInt(inInjuries?.value, 10) || 0;
+    const vehicles = parseInt(inVehicles?.value, 10) || 0;
+    const personnel = parseInt(inPersonnel?.value, 10) || 0;
+
+    AppState.kpiOverride = {
+      enabled: isEnabled,
+      total,
+      active,
+      cleared,
+      deaths,
+      injuries,
+      vehicles,
+      personnel
+    };
+
+    localStorage.setItem('nfa_kpi_override', JSON.stringify(AppState.kpiOverride));
+    updateKPICards();
+    kpiEditModal?.classList.remove('open');
+    alert('상황판 지표 수치가 성공적으로 변경되어 저장되었습니다!');
+  });
+
+  btnResetKpiAuto?.addEventListener('click', () => {
+    AppState.kpiOverride = null;
+    localStorage.removeItem('nfa_kpi_override');
+    updateKPICards();
+    kpiEditModal?.classList.remove('open');
+    alert('기본 자동 집계 모드로 복구되었습니다.');
+  });
 
   // Close modals on background click
   window.addEventListener('click', (e) => {
