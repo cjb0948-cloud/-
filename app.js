@@ -1186,6 +1186,274 @@ function setupAutoRefresh() {
 }
 
 // ============================================================================
+// CCTV Live Video & Camera Simulation System
+// ============================================================================
+const CCTV_CAMERAS = [
+  { id: 1, name: "경기 화성 공장 화재 [소방드론 1호기]", lat: 37.0682, lng: 126.9634, type: "drone" },
+  { id: 2, name: "서울 마포 상가 화재 [지휘차 전방캠]", lat: 37.5543, lng: 126.9207, type: "vehicle" },
+  { id: 3, name: "강원 원주 산불 [치악산 감시타워 CCTV]", lat: 37.4089, lng: 128.0264, type: "tower" },
+  { id: 4, name: "부산 사상 공업사 [교통정보센터 연계캠]", lat: 35.1524, lng: 128.9839, type: "traffic" }
+];
+
+let cctvAnimationId = null;
+let cctvMarkers = [];
+let showCctvOnMap = true;
+
+function initCctvSystem() {
+  const cctvModal = document.getElementById('cctvModal');
+  const btnOpen = document.getElementById('btnOpenCctvModal');
+  const btnClose = document.getElementById('btnCloseCctvModal');
+  const btnCloseBottom = document.getElementById('btnCloseCctvModalBottom');
+  const btnToggleMap = document.getElementById('btnToggleCctvMarkers');
+
+  // Open / Close Modal
+  btnOpen?.addEventListener('click', () => {
+    cctvModal?.classList.add('open');
+    startCctvSimulation();
+  });
+
+  const closeModal = () => {
+    cctvModal?.classList.remove('open');
+    if (cctvAnimationId) {
+      cancelAnimationFrame(cctvAnimationId);
+      cctvAnimationId = null;
+    }
+  };
+
+  btnClose?.addEventListener('click', closeModal);
+  btnCloseBottom?.addEventListener('click', closeModal);
+
+  // Vision Mode Buttons (Normal, Thermal FLIR, Night Vision)
+  const visionBtns = document.querySelectorAll('.btn-vision');
+  const grid = document.getElementById('cctvGrid');
+  visionBtns.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      visionBtns.forEach(b => b.classList.remove('active'));
+      const target = e.currentTarget;
+      target.classList.add('active');
+      const mode = target.dataset.vision;
+
+      grid.classList.remove('vision-thermal', 'vision-night');
+      if (mode === 'thermal') grid.classList.add('vision-thermal');
+      if (mode === 'night') grid.classList.add('vision-night');
+    });
+  });
+
+  // Toggle Map CCTV Markers
+  btnToggleMap?.addEventListener('click', () => {
+    showCctvOnMap = !showCctvOnMap;
+    btnToggleMap.classList.toggle('active', showCctvOnMap);
+    renderCctvMapMarkers();
+  });
+
+  // Custom Stream URL input
+  const btnApplyStream = document.getElementById('btnApplyCustomStream');
+  const streamInput = document.getElementById('customStreamUrlInput');
+  btnApplyStream?.addEventListener('click', () => {
+    const url = streamInput.value.trim();
+    if (!url) return;
+
+    const cam1Container = document.querySelector('#camCard1 .cctv-video-container');
+    if (!cam1Container) return;
+
+    // Check if YouTube link
+    let embedUrl = url;
+    if (url.includes('youtube.com/watch?v=')) {
+      const vid = url.split('v=')[1]?.split('&')[0];
+      embedUrl = `https://www.youtube.com/embed/${vid}?autoplay=1&mute=1`;
+    } else if (url.includes('youtu.be/')) {
+      const vid = url.split('youtu.be/')[1]?.split('?')[0];
+      embedUrl = `https://www.youtube.com/embed/${vid}?autoplay=1&mute=1`;
+    }
+
+    if (embedUrl.includes('youtube.com/embed/')) {
+      cam1Container.innerHTML = `
+        <iframe width="100%" height="100%" src="${embedUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border: none;"></iframe>
+      `;
+    } else {
+      cam1Container.innerHTML = `
+        <video width="100%" height="100%" src="${url}" autoplay muted loop controls style="object-fit: cover;"></video>
+      `;
+    }
+    alert('실시간 외부 스트림 영상이 CH-01 채널에 연결되었습니다!');
+  });
+
+  // Initial map CCTV markers
+  renderCctvMapMarkers();
+}
+
+// Render CCTV markers on map
+function renderCctvMapMarkers() {
+  if (!AppState.map) return;
+
+  // Clear existing
+  cctvMarkers.forEach(m => AppState.map.removeLayer(m));
+  cctvMarkers = [];
+
+  if (!showCctvOnMap) return;
+
+  CCTV_CAMERAS.forEach(cam => {
+    const icon = L.divIcon({
+      className: 'cctv-custom-marker',
+      html: `
+        <div style="background: #2563eb; color: #fff; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; box-shadow: 0 0 10px rgba(37,99,235,0.8); border: 2px solid #fff; cursor: pointer;">
+          <i class="fa-solid fa-video" style="font-size: 11px;"></i>
+        </div>
+      `,
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+
+    const marker = L.marker([cam.lat + 0.003, cam.lng + 0.003], { icon: icon });
+    marker.bindPopup(`
+      <div style="padding: 10px; font-family: Pretendard; color: #fff; background: #111827; border-radius: 6px; min-width: 200px;">
+        <h4 style="font-size: 12px; color: #38bdf8; margin-bottom: 6px;"><i class="fa-solid fa-video"></i> ${cam.name}</h4>
+        <p style="font-size: 11px; color: #94a3b8; margin-bottom: 8px;">실시간 현장 관제 스트림 수신 가능</p>
+        <button onclick="document.getElementById('btnOpenCctvModal').click()" style="width: 100%; padding: 6px; background: #dc2626; color: #fff; border: none; border-radius: 4px; font-size: 11px; font-weight: 600; cursor: pointer;">
+          🎥 실시간 영상 보기
+        </button>
+      </div>
+    `);
+    marker.addTo(AppState.map);
+    cctvMarkers.push(marker);
+  });
+}
+
+// High-Tech Emergency CCTV Simulation Canvas Animation
+function startCctvSimulation() {
+  const c1 = document.getElementById('canvasCam1')?.getContext('2d');
+  const c2 = document.getElementById('canvasCam2')?.getContext('2d');
+  const c3 = document.getElementById('canvasCam3')?.getContext('2d');
+  const c4 = document.getElementById('canvasCam4')?.getContext('2d');
+
+  let tick = 0;
+
+  function render() {
+    tick++;
+    const now = new Date();
+    const timeStr = now.toTimeString().split(' ')[0];
+
+    // Update timecodes
+    for (let i = 1; i <= 4; i++) {
+      const el = document.getElementById(`cctvTime${i}`);
+      if (el) el.innerText = timeStr;
+    }
+
+    // 1. Cam 1: Drone aerial view of factory fire
+    if (c1) {
+      c1.fillStyle = '#0a101d';
+      c1.fillRect(0, 0, 480, 270);
+
+      // Factory building outline
+      c1.strokeStyle = '#1e293b';
+      c1.lineWidth = 2;
+      c1.strokeRect(100, 70, 280, 140);
+      c1.strokeRect(160, 100, 160, 80);
+
+      // Fire & smoke plume center
+      const gradient = c1.createRadialGradient(240, 140, 5, 240, 140, 60 + Math.sin(tick * 0.1) * 12);
+      gradient.addColorStop(0, 'rgba(255, 120, 20, 0.9)');
+      gradient.addColorStop(0.3, 'rgba(239, 68, 68, 0.7)');
+      gradient.addColorStop(0.7, 'rgba(70, 70, 80, 0.5)');
+      gradient.addColorStop(1, 'transparent');
+
+      c1.fillStyle = gradient;
+      c1.beginPath();
+      c1.arc(240, 140, 70 + Math.sin(tick * 0.08) * 15, 0, Math.PI * 2);
+      c1.fill();
+
+      // Emergency strobe lights
+      if (Math.floor(tick / 8) % 2 === 0) {
+        c1.fillStyle = 'rgba(239, 68, 68, 0.8)';
+        c1.beginPath();
+        c1.arc(90, 190, 8, 0, Math.PI * 2);
+        c1.arc(390, 190, 8, 0, Math.PI * 2);
+        c1.fill();
+      }
+      if (Math.floor(tick / 8) % 2 === 1) {
+        c1.fillStyle = 'rgba(59, 130, 246, 0.8)';
+        c1.beginPath();
+        c1.arc(105, 190, 8, 0, Math.PI * 2);
+        c1.arc(375, 190, 8, 0, Math.PI * 2);
+        c1.fill();
+      }
+    }
+
+    // 2. Cam 2: Ground vehicle dashcam
+    if (c2) {
+      c2.fillStyle = '#0f172a';
+      c2.fillRect(0, 0, 480, 270);
+
+      // Road perspective
+      c2.strokeStyle = '#334155';
+      c2.lineWidth = 2;
+      c2.beginPath();
+      c2.moveTo(0, 270);
+      c2.lineTo(220, 130);
+      c2.moveTo(480, 270);
+      c2.lineTo(260, 130);
+      c2.stroke();
+
+      // Storefront glowing smoke
+      const grad2 = c2.createRadialGradient(280, 110, 2, 280, 110, 45);
+      grad2.addColorStop(0, 'rgba(249, 115, 22, 0.85)');
+      grad2.addColorStop(0.5, 'rgba(220, 38, 38, 0.4)');
+      grad2.addColorStop(1, 'transparent');
+      c2.fillStyle = grad2;
+      c2.beginPath();
+      c2.arc(280, 110, 45 + Math.cos(tick * 0.1) * 8, 0, Math.PI * 2);
+      c2.fill();
+    }
+
+    // 3. Cam 3: Mountain watchtower
+    if (c3) {
+      c3.fillStyle = '#020617';
+      c3.fillRect(0, 0, 480, 270);
+
+      // Mountain ridge
+      c3.fillStyle = '#1e293b';
+      c3.beginPath();
+      c3.moveTo(0, 220);
+      c3.lineTo(120, 140);
+      c3.lineTo(260, 180);
+      c3.lineTo(380, 110);
+      c3.lineTo(480, 170);
+      c3.lineTo(480, 270);
+      c3.lineTo(0, 270);
+      c3.fill();
+
+      // Mountain smoke
+      c3.fillStyle = 'rgba(234, 179, 8, 0.45)';
+      c3.beginPath();
+      c3.arc(260, 160, 25 + Math.sin(tick * 0.05) * 6, 0, Math.PI * 2);
+      c3.fill();
+    }
+
+    // 4. Cam 4: Intersection CCTV
+    if (c4) {
+      c4.fillStyle = '#090d16';
+      c4.fillRect(0, 0, 480, 270);
+
+      // Cross intersection
+      c4.fillStyle = '#172033';
+      c4.fillRect(190, 0, 100, 270);
+      c4.fillRect(0, 100, 480, 70);
+
+      // Moving traffic dots
+      const carPos = (tick * 2) % 480;
+      c4.fillStyle = '#f8fafc';
+      c4.fillRect(carPos, 115, 12, 6);
+      c4.fillStyle = '#ef4444';
+      c4.fillRect((480 - carPos), 145, 12, 6);
+    }
+
+    cctvAnimationId = requestAnimationFrame(render);
+  }
+
+  render();
+}
+
+// ============================================================================
 // Application Entrypoint
 // ============================================================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -1194,8 +1462,10 @@ document.addEventListener('DOMContentLoaded', () => {
   initCharts();
   initModals();
   initEventListeners();
+  initCctvSystem();
   setupAutoRefresh();
 
   // Initial Data Fetch
   fetchFireData();
 });
+

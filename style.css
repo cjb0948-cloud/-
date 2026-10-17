@@ -1277,3 +1277,306 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* ==========================================================================
+   CCTV Live Video Monitoring & HUD Styles
+   ========================================================================== */
+.btn-cctv {
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+  color: #fff;
+  border: 1px solid #ef4444;
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+  position: relative;
+}
+.btn-cctv:hover {
+  background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%);
+  box-shadow: 0 0 18px rgba(239, 68, 68, 0.7);
+  transform: translateY(-1px);
+}
+
+.live-dot-video {
+  width: 8px;
+  height: 8px;
+  background-color: #ef4444;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #ef4444;
+  animation: livePulse 1.2s infinite;
+}
+
+.map-controls-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-cctv-toggle {
+  background: rgba(220, 38, 38, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.4);
+  color: #fca5a5;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: var(--transition);
+}
+.btn-cctv-toggle:hover, .btn-cctv-toggle.active {
+  background: #dc2626;
+  color: #fff;
+  border-color: #ef4444;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.5);
+}
+
+/* CCTV Modal Dialog */
+.cctv-modal-dialog {
+  max-width: 1040px;
+  width: 95vw;
+}
+
+.cctv-status-tag {
+  font-size: 11px;
+  padding: 3px 8px;
+  background: rgba(239, 68, 68, 0.15);
+  border: 1px solid rgba(239, 68, 68, 0.35);
+  color: #fca5a5;
+  border-radius: 12px;
+}
+
+.cctv-header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.cctv-filter-buttons {
+  display: flex;
+  gap: 4px;
+  background: var(--bg-dark);
+  padding: 3px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-color);
+}
+
+.btn-vision {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-vision:hover {
+  color: #fff;
+}
+.btn-vision.active {
+  background: #2563eb;
+  color: #fff;
+}
+
+/* 4-Split Grid */
+.cctv-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.cctv-card {
+  background: #080c14;
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+}
+
+.cctv-screen-wrap {
+  position: relative;
+  width: 100%;
+}
+
+.cctv-hud-top {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-family: monospace;
+  color: #e2e8f0;
+  background: rgba(0, 0, 0, 0.55);
+  padding: 4px 8px;
+  border-radius: 4px;
+  backdrop-filter: blur(4px);
+}
+
+.hud-tag {
+  color: #ef4444;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.hud-blink {
+  animation: livePulse 1s infinite;
+}
+
+.hud-cam-name {
+  color: #38bdf8;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+.cctv-video-container {
+  width: 100%;
+  height: 220px;
+  background: #000;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cctv-canvas {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: filter 0.3s ease;
+}
+
+/* Vision Mode Filters */
+.vision-thermal .cctv-canvas {
+  filter: contrast(180%) hue-rotate(180deg) invert(25%) saturate(220%);
+}
+
+.vision-night .cctv-canvas {
+  filter: brightness(130%) contrast(160%) sepia(100%) hue-rotate(75deg) saturate(280%);
+}
+
+.cctv-overlay-reticle {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15) 0px,
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 3px
+  );
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.reticle-center {
+  width: 40px;
+  height: 40px;
+  border: 1px dashed rgba(255, 255, 255, 0.3);
+  position: relative;
+}
+.reticle-center::before, .reticle-center::after {
+  content: "";
+  position: absolute;
+  background: rgba(255, 255, 255, 0.4);
+}
+.reticle-center::before { top: 50%; left: -6px; right: -6px; height: 1px; }
+.reticle-center::after { left: 50%; top: -6px; bottom: -6px; width: 1px; }
+
+.reticle-info {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  font-size: 10px;
+  font-family: monospace;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(0, 0, 0, 0.4);
+  padding: 2px 6px;
+  border-radius: 2px;
+}
+
+.cctv-hud-bottom {
+  padding: 8px 12px;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.hud-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 4px;
+}
+.hud-badge.danger { background: rgba(239, 68, 68, 0.2); color: #fca5a5; }
+.hud-badge.warning { background: rgba(249, 115, 22, 0.2); color: #fed7aa; }
+.hud-badge.alert { background: rgba(234, 179, 8, 0.2); color: #fef08a; }
+.hud-badge.success { background: rgba(16, 185, 129, 0.2); color: #a7f3d0; }
+
+/* Custom Stream Input */
+.custom-stream-bar {
+  background: var(--bg-dark);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.stream-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.stream-input-wrap i {
+  color: var(--color-cyan);
+}
+
+.stream-input-wrap input {
+  flex: 1;
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-sm);
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #fff;
+  outline: none;
+}
+.stream-input-wrap input:focus {
+  border-color: #3b82f6;
+}
+
+.stream-note {
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 900px) {
+  .cctv-grid {
+    grid-template-columns: 1fr;
+  }
+}

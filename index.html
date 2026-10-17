@@ -47,6 +47,10 @@
       </div>
       
       <div class="header-actions">
+        <button class="btn btn-cctv" id="btnOpenCctvModal" title="전국 실시간 현장 CCTV 및 드론 영상 관제">
+          <span class="live-dot-video"></span>
+          <i class="fa-solid fa-video"></i> 현장 영상 관제
+        </button>
         <button class="btn btn-secondary" id="btnRefresh" title="데이터 새로고침">
           <i class="fa-solid fa-rotate-right"></i> 데이터 갱신
         </button>
@@ -56,7 +60,7 @@
         <button class="btn btn-icon" id="btnFullscreen" title="화면 전체화면 전환">
           <i class="fa-solid fa-expand"></i>
         </button>
-        <a href="https://github.com/cjb0948-cloud" target="_blank" class="btn btn-icon" title="깃허브 저장소 바로가기">
+        <a href="https://github.com/cjb0948-cloud/-" target="_blank" class="btn btn-icon" title="깃허브 저장소 바로가기">
           <i class="fa-brands fa-github"></i>
         </a>
       </div>
@@ -150,15 +154,21 @@
             <span class="status-pill" id="dataSourcePill">소방청 공공데이터 (모의/연동)</span>
           </div>
 
-          <!-- Region Filter Bar -->
-          <div class="region-filter-bar" id="regionFilterBar">
-            <button class="region-btn active" data-region="all">전국</button>
-            <button class="region-btn" data-region="수도권">수도권</button>
-            <button class="region-btn" data-region="강원">강원</button>
-            <button class="region-btn" data-region="충청">충청</button>
-            <button class="region-btn" data-region="호남">호남</button>
-            <button class="region-btn" data-region="영남">영남</button>
-            <button class="region-btn" data-region="제주">제주</button>
+          <div class="map-controls-group">
+            <!-- Region Filter Bar -->
+            <div class="region-filter-bar" id="regionFilterBar">
+              <button class="region-btn active" data-region="all">전국</button>
+              <button class="region-btn" data-region="수도권">수도권</button>
+              <button class="region-btn" data-region="강원">강원</button>
+              <button class="region-btn" data-region="충청">충청</button>
+              <button class="region-btn" data-region="호남">호남</button>
+              <button class="region-btn" data-region="영남">영남</button>
+              <button class="region-btn" data-region="제주">제주</button>
+            </div>
+            <!-- CCTV Markers Toggle Button -->
+            <button class="btn-cctv-toggle active" id="btnToggleCctvMarkers" title="지도 위 현장 관제 CCTV 카메라 켜기/끄기">
+              <i class="fa-solid fa-video"></i> <span>CCTV 카메라</span>
+            </button>
           </div>
         </div>
 
@@ -408,6 +418,139 @@
 
       <div class="modal-footer">
         <button type="button" class="btn btn-primary" id="btnCloseSafetyModalBottom">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: 현장 실시간 CCTV & 드론 영상 다채널 관제 모달 -->
+  <div class="modal-overlay" id="cctvModal">
+    <div class="modal-dialog cctv-modal-dialog">
+      <div class="modal-header">
+        <div class="modal-title-group">
+          <span class="live-rec-dot"></span>
+          <i class="fa-solid fa-video text-red"></i>
+          <h3>현장 실시간 CCTV & 소방드론 다채널 통합관제</h3>
+          <span class="cctv-status-tag">4채널 동시 수신 중</span>
+        </div>
+        <div class="cctv-header-controls">
+          <div class="cctv-filter-buttons">
+            <button class="btn-vision active" data-vision="normal"><i class="fa-solid fa-eye"></i> 일반 모드</button>
+            <button class="btn-vision" data-vision="thermal"><i class="fa-solid fa-fire-burner"></i> 열화상 (FLIR)</button>
+            <button class="btn-vision" data-vision="night"><i class="fa-solid fa-moon"></i> 야간 적외선</button>
+          </div>
+          <button class="modal-close-btn" id="btnCloseCctvModal">&times;</button>
+        </div>
+      </div>
+
+      <div class="modal-body cctv-modal-body">
+        <!-- 4-Split CCTV Grid -->
+        <div class="cctv-grid" id="cctvGrid">
+          
+          <!-- Channel 1: Hwaseong Drone -->
+          <div class="cctv-card" id="camCard1">
+            <div class="cctv-screen-wrap">
+              <div class="cctv-hud-top">
+                <span class="hud-tag"><span class="hud-blink">●</span> LIVE CH-01</span>
+                <span class="hud-cam-name">경기 화성 공장 화재 [소방드론 1호기]</span>
+                <span class="hud-time" id="cctvTime1">22:42:15</span>
+              </div>
+              <div class="cctv-video-container">
+                <canvas class="cctv-canvas" id="canvasCam1" width="480" height="270"></canvas>
+                <div class="cctv-overlay-reticle">
+                  <div class="reticle-center"></div>
+                  <div class="reticle-info">ALT 85m | HDG 214° | FLIR OPTIC</div>
+                </div>
+              </div>
+              <div class="cctv-hud-bottom">
+                <span><i class="fa-solid fa-location-dot"></i> 화성시 양감면 공장지대</span>
+                <span class="hud-badge danger">진압작전 진행 중</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channel 2: Mapo Command Vehicle -->
+          <div class="cctv-card" id="camCard2">
+            <div class="cctv-screen-wrap">
+              <div class="cctv-hud-top">
+                <span class="hud-tag"><span class="hud-blink">●</span> LIVE CH-02</span>
+                <span class="hud-cam-name">서울 마포 상가 화재 [지휘차 전방캠]</span>
+                <span class="hud-time" id="cctvTime2">22:42:15</span>
+              </div>
+              <div class="cctv-video-container">
+                <canvas class="cctv-canvas" id="canvasCam2" width="480" height="270"></canvas>
+                <div class="cctv-overlay-reticle">
+                  <div class="reticle-center"></div>
+                  <div class="reticle-info">PTZ OPTIC 12X | 1080p FHD</div>
+                </div>
+              </div>
+              <div class="cctv-hud-bottom">
+                <span><i class="fa-solid fa-location-dot"></i> 마포구 서교동 상가밀집지역</span>
+                <span class="hud-badge warning">인명 대피 완료 / 주방 진압</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channel 3: Wonju Forest Fire Tower -->
+          <div class="cctv-card" id="camCard3">
+            <div class="cctv-screen-wrap">
+              <div class="cctv-hud-top">
+                <span class="hud-tag"><span class="hud-blink">●</span> LIVE CH-03</span>
+                <span class="hud-cam-name">강원 원주 산불 [치악산 감시타워 CCTV]</span>
+                <span class="hud-time" id="cctvTime3">22:42:15</span>
+              </div>
+              <div class="cctv-video-container">
+                <canvas class="cctv-canvas" id="canvasCam3" width="480" height="270"></canvas>
+                <div class="cctv-overlay-reticle">
+                  <div class="reticle-center"></div>
+                  <div class="reticle-info">ELEV 420m | WIND NW 3.2m/s</div>
+                </div>
+              </div>
+              <div class="cctv-hud-bottom">
+                <span><i class="fa-solid fa-location-dot"></i> 원주시 소초면 치악산 3부 능선</span>
+                <span class="hud-badge alert">주불 진화 완료 / 잔불 정리</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Channel 4: Busan Highway / Traffic Agency CCTV -->
+          <div class="cctv-card" id="camCard4">
+            <div class="cctv-screen-wrap">
+              <div class="cctv-hud-top">
+                <span class="hud-tag"><span class="hud-blink">●</span> LIVE CH-04</span>
+                <span class="hud-cam-name">부산 사상 공업사 [교통정보센터 연계캠]</span>
+                <span class="hud-time" id="cctvTime4">22:42:15</span>
+              </div>
+              <div class="cctv-video-container">
+                <canvas class="cctv-canvas" id="canvasCam4" width="480" height="270"></canvas>
+                <div class="cctv-overlay-reticle">
+                  <div class="reticle-center"></div>
+                  <div class="reticle-info">TRAFFIC INTERSECTION CAM #04</div>
+                </div>
+              </div>
+              <div class="cctv-hud-bottom">
+                <span><i class="fa-solid fa-location-dot"></i> 사상구 감전동 공업지역 교차로</span>
+                <span class="hud-badge success">초진 완료 / 소방차 14대 현장</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Custom Video Stream Input Drawer -->
+        <div class="custom-stream-bar">
+          <div class="stream-input-wrap">
+            <i class="fa-solid fa-link"></i>
+            <input type="text" id="customStreamUrlInput" placeholder="외부 실시간 스트림 또는 YouTube 라이브 영상 주소 입력 (선택사항)...">
+            <button class="btn btn-primary btn-sm" id="btnApplyCustomStream">
+              <i class="fa-solid fa-play"></i> 스트림 연결
+            </button>
+          </div>
+          <span class="stream-note">* 지자체 교통 CCTV, 소방 방재 RTSP/HLS 또는 YouTube 재난특보 라이브 주소를 입력하여 화면에 띄울 수 있습니다.</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" id="btnCloseCctvModalBottom">관제 창 닫기</button>
       </div>
     </div>
   </div>
