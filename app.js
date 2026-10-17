@@ -32,332 +32,287 @@ const AppState = {
 };
 
 // ============================================================================
-// Realistic Mock / Standard Baseline Dataset (소방청 표준 데이터 규격)
+// Dynamic Real-Time Incident Generator (소방청 실시간 동적 데이터 생성 엔진)
 // ============================================================================
-const SAMPLE_INCIDENTS = [
-  {
-    id: "화재상황-20261007-001",
-    title: "경기 화성시 공장 화재",
-    type: "공장/창고 화재",
-    status: "active", // active (진압중), cleared (완진)
-    responseLevel: "대응 2단계",
-    location: "경기도 화성시 양감면",
-    station: "화성소방서",
-    lat: 37.0682,
-    lng: 126.9634,
-    time: "2026-10-07 21:42",
-    relativeTime: "40분 전",
-    cause: "전기적 요인",
-    casualties: { deaths: 0, injuries: 1 },
-    resources: { vehicles: 28, personnel: 84 },
-    details: "플라스틱 사출 공장 내부 배전반에서 발화 추정. 인접 공장으로의 연소 확대 저지선 구축 및 집중 방수 중.",
-    timeline: [
-      { time: "21:42", text: "119 최초 화재 신고 접수" },
-      { time: "21:48", text: "화성소방서 선착대 현장 도착 및 화재 진압 개시" },
-      { time: "21:55", text: "대응 1단계 발령 (인근 소방력 집중)" },
-      { time: "22:10", text: "대응 2단계 격상 발령 (소방청 국가소방동원령 1호 검토)" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-002",
-    title: "서울 마포구 상가 화재",
-    type: "상가/다중이용시설 화재",
-    status: "active",
-    responseLevel: "대응 1단계",
-    location: "서울특별시 마포구 서교동",
-    station: "마포소방서",
-    lat: 37.5543,
-    lng: 126.9207,
-    time: "2026-10-07 22:05",
-    relativeTime: "18분 전",
-    cause: "부주의 (주방 취급)",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 16, personnel: 52 },
-    details: "지상 3층 상가건물 1층 음식점 주방 후드에서 착화. 건물 내 상인 및 이용객 24명 전원 자력 대피 완료.",
-    timeline: [
-      { time: "22:05", text: "119 신고 접수" },
-      { time: "22:09", text: "마포소방서 출동대 도착 및 대피 유도 완료" },
-      { time: "22:15", text: "대응 1단계 발령 및 주방 집중 진화 중" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-003",
-    title: "강원 원주시 치악산 인근 야산 화재",
-    type: "산불/임야 화재",
-    status: "active",
-    responseLevel: "초기 대응",
-    location: "강원특별자치도 원주시 소초면",
-    station: "원주소방서",
-    lat: 37.4089,
-    lng: 128.0264,
-    time: "2026-10-07 20:50",
-    relativeTime: "1시간 30분 전",
-    cause: "담뱃불 등 부주의 추정",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 12, personnel: 45 },
-    details: "야산 3부 능선 인근 낙엽층 화재. 건조 및 강풍으로 연소 확산 우려되어 산림청 진화대 합동 방화선 구축 완료, 진화율 70%.",
-    timeline: [
-      { time: "20:50", text: "인근 주민 산불 목격 신고 접수" },
-      { time: "21:05", text: "원주소방서 산불진화대 현장 진입" },
-      { time: "21:40", text: "주불 진화선 구축 및 잔불 집중 진화" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-004",
-    title: "부산 사상구 공업사 화재",
-    type: "공장/작업장 화재",
-    status: "active",
-    responseLevel: "초기 대응",
-    location: "부산광역시 사상구 감전동",
-    station: "사상소방서",
-    lat: 35.1524,
-    lng: 128.9839,
-    time: "2026-10-07 21:15",
-    relativeTime: "1시간 전",
-    cause: "용접 작업 불티",
-    casualties: { deaths: 0, injuries: 1 },
-    resources: { vehicles: 14, personnel: 38 },
-    details: "자동차 정비공장 내 용접 작업 중 가연물 착화로 추정. 작업자 1명 경미한 화상으로 병원 이송, 초진 완료 후 잔불 정리 중.",
-    timeline: [
-      { time: "21:15", text: "119 신고 접수" },
-      { time: "21:22", text: "현장 도착 및 인명 구조/이송" },
-      { time: "21:50", text: "초진 완료, 잔불 정리 단계" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-005",
-    title: "경북 포항시 남구 단독주택 화재",
-    type: "주거시설 화재",
-    status: "active",
-    responseLevel: "초기 대응",
-    location: "경상북도 포항시 남구 오천읍",
-    station: "포항남부소방서",
-    lat: 35.9687,
-    lng: 129.3789,
-    time: "2026-10-07 22:12",
-    relativeTime: "12분 전",
-    cause: "화목보일러 과열 추정",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 9, personnel: 26 },
-    details: "단독주택 보일러실에서 발화. 거주자 2명 안전 대피, 주변 주택 연소 확대 차단 작업 진행 중.",
-    timeline: [
-      { time: "22:12", text: "119 신고 접수" },
-      { time: "22:18", text: "출동대 현장 도착 및 수관 전개" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-006",
-    title: "충남 천안시 서북구 아파트 화재",
-    type: "주거시설(공동주택)",
-    status: "cleared",
-    responseLevel: "일반",
-    location: "충청남도 천안시 서북구 쌍용동",
-    station: "천안서북소방서",
-    lat: 36.8041,
-    lng: 127.1235,
-    time: "2026-10-07 19:10",
-    relativeTime: "3시간 전",
-    cause: "전기적 요인 (멀티탭 과부하)",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 15, personnel: 42 },
-    details: "아파트 8층 안방 멀티탭 단락으로 발화. 스프링클러 작동 및 소방대 진입으로 25분 만에 완진.",
-    timeline: [
-      { time: "19:10", text: "화재 감지기 및 119 신고 접수" },
-      { time: "19:15", text: "현장 도착" },
-      { time: "19:35", text: "완진 판정 및 배연 작업 완료" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-007",
-    title: "대구 북구 침산동 창고 화재",
-    type: "창고 화재",
-    status: "cleared",
-    responseLevel: "일반",
-    location: "대구광역시 북구 침산동",
-    station: "대구북부소방서",
-    lat: 35.8895,
-    lng: 128.5873,
-    time: "2026-10-07 17:30",
-    relativeTime: "5시간 전",
-    cause: "기계적 요인 (지게차 배터리)",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 18, personnel: 48 },
-    details: "물류창고 전동 지게차 충전 중 배터리 열폭주 추정. 신속 진압으로 인명 피해 없음.",
-    timeline: [
-      { time: "17:30", text: "신고 접수" },
-      { time: "18:15", text: "완진 및 현장 감식 전환" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-008",
-    title: "전남 여수시 돌산읍 어선 화재",
-    type: "차량/선박 화재",
-    status: "cleared",
-    responseLevel: "일반",
-    location: "전라남도 여수시 돌산읍",
-    station: "여수소방서",
-    lat: 34.6983,
-    lng: 127.7562,
-    time: "2026-10-07 16:40",
-    relativeTime: "6시간 전",
-    cause: "전기적 요인 (기관실 배선)",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 7, personnel: 22 },
-    details: "항포구 정박 중인 4.5톤급 연안복합 어선 기관실 화재. 해경정 합동 진화 완료.",
-    timeline: [
-      { time: "16:40", text: "신고 접수" },
-      { time: "17:20", text: "완진" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-009",
-    title: "인천 서구 가좌동 목재공장 화재",
-    type: "공장/창고 화재",
-    status: "cleared",
-    responseLevel: "대응 1단계",
-    location: "인천광역시 서구 가좌동",
-    station: "인천서부소방서",
-    lat: 37.4912,
-    lng: 126.6854,
-    time: "2026-10-07 14:20",
-    relativeTime: "8시간 전",
-    cause: "원인 미상 (정밀 조사중)",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 22, personnel: 65 },
-    details: "목재 야적장 톱밥 더미에서 자연발화 또는 불티 추정. 포크레인 동원해 더미 파헤치며 완진.",
-    timeline: [
-      { time: "14:20", text: "신고 접수" },
-      { time: "16:00", text: "완진" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-010",
-    title: "제주 서귀포시 서홍동 비닐하우스 화재",
-    type: "농업/축산 시설",
-    status: "cleared",
-    responseLevel: "일반",
-    location: "제주특별자치도 서귀포시 서홍동",
-    station: "서귀포소방서",
-    lat: 33.2541,
-    lng: 126.5492,
-    time: "2026-10-07 11:15",
-    relativeTime: "11시간 전",
-    cause: "전기적 요인 (열풍기 과열)",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 6, personnel: 18 },
-    details: "감귤 비닐하우스 내 농업용 온풍기 과열로 보온덮개 착화. 30분 만에 완진.",
-    timeline: [
-      { time: "11:15", text: "신고 접수" },
-      { time: "11:45", text: "완진" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-011",
-    title: "광주 북구 용봉동 상가 주택 화재",
-    type: "주거복합시설",
-    status: "cleared",
-    responseLevel: "일반",
-    location: "광주광역시 북구 용봉동",
-    station: "광주북부소방서",
-    lat: 35.1812,
-    lng: 126.9034,
-    time: "2026-10-07 09:30",
-    relativeTime: "13시간 전",
-    cause: "가스 누출 등 부주의",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 8, personnel: 24 },
-    details: "가스레인지 음식물 조리 중 장시간 방치로 인한 연기 발생 및 연소. 신속 진화.",
-    timeline: [
-      { time: "09:30", text: "신고 접수" },
-      { time: "09:48", text: "완진" }
-    ]
-  },
-  {
-    id: "화재상황-20261007-012",
-    title: "대전 대덕구 대화동 산업단지 변전실 화재",
-    type: "산업시설",
-    status: "cleared",
-    responseLevel: "일반",
-    location: "대전광역시 대덕구 대화동",
-    station: "대덕소방서",
-    lat: 36.3685,
-    lng: 127.4121,
-    time: "2026-10-07 06:15",
-    relativeTime: "16시간 전",
-    cause: "전기적 요인 (특고압 차단기 절연파괴)",
-    casualties: { deaths: 0, injuries: 0 },
-    resources: { vehicles: 12, personnel: 35 },
-    details: "변전설비 과전류로 인한 아크 방전 발화. 이산화탄소 소화설비 방출 및 진압 완료.",
-    timeline: [
-      { time: "06:15", text: "신고 접수" },
-      { time: "06:50", text: "완진" }
-    ]
-  }
+// Dynamically generated real-time incidents
+const SAMPLE_INCIDENTS = [];
+function getTodayDateInfo() {
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = String(now.getMonth() + 1).padStart(2, '0');
+  const d = String(now.getDate()).padStart(2, '0');
+  const days = ['일', '월', '화', '수', '목', '금', '토'];
+  const day = days[now.getDay()];
+  return {
+    year: y,
+    month: m,
+    day: d,
+    dayOfWeek: day,
+    dateStr: `${y}-${m}-${d}`,
+    compactDate: `${y}${m}${d}`,
+    displayDate: `${y}. ${m}. ${d} (${day})`,
+    now: now
+  };
+}
+
+// 17 Metropolitan Cities and Provinces across South Korea with regional coordinates
+const REGION_DATA = [
+  { name: "경기", fullName: "경기도", centerLat: 37.4138, centerLng: 127.5183, stations: ["화성소방서", "수원남부소방서", "평택소방서", "파주소방서", "남양주소방서", "용인소방서", "안산소방서", "성남소방서", "시흥소방서", "포천소방서", "김포소방서", "의정부소방서"] },
+  { name: "서울", fullName: "서울특별시", centerLat: 37.5665, centerLng: 126.9780, stations: ["종로소방서", "마포소방서", "강남소방서", "영등포소방서", "송파소방서", "구로소방서", "중랑소방서", "노원소방서", "서초소방서", "강동소방서"] },
+  { name: "경북", fullName: "경상북도", centerLat: 36.5760, centerLng: 128.5056, stations: ["포항남부소방서", "포항북부소방서", "구미소방서", "경주소방서", "안동소방서", "경산소방서", "상주소방서", "영주소방서", "칠곡소방서"] },
+  { name: "경남", fullName: "경상남도", centerLat: 35.4606, centerLng: 128.2132, stations: ["창원소방본부", "김해동부소방서", "양산소방서", "진주소방서", "거제소방서", "통영소방서", "사천소방서", "밀양소방서"] },
+  { name: "충남", fullName: "충청남도", centerLat: 36.6588, centerLng: 126.6728, stations: ["천안서북소방서", "천안동남소방서", "아산소방서", "당진소방서", "서산소방서", "공주소방서", "보령소방서", "논산소방서"] },
+  { name: "강원", fullName: "강원특별자치도", centerLat: 37.8228, centerLng: 128.1555, stations: ["춘천소방서", "원주소방서", "강릉소방서", "동해소방서", "속초소방서", "삼척소방서", "홍천소방서", "태백소방서"] },
+  { name: "전남", fullName: "전라남도", centerLat: 34.8679, centerLng: 126.9910, stations: ["순천소방서", "여수소방서", "목포소방서", "나주소방서", "광양소방서", "해남소방서", "담양소방서", "영암소방서"] },
+  { name: "전북", fullName: "전북특별자치도", centerLat: 35.7175, centerLng: 127.1530, stations: ["전주완산소방서", "전주덕진소방서", "익산소방서", "군산소방서", "정읍소방서", "남원소방서", "김제소방서"] },
+  { name: "충북", fullName: "충청북도", centerLat: 36.6357, centerLng: 127.4912, stations: ["청주서원소방서", "청주흥덕소방서", "충주소방서", "제천소방서", "음성소방서", "진천소방서", "옥천소방서"] },
+  { name: "부산", fullName: "부산광역시", centerLat: 35.1796, centerLng: 129.0756, stations: ["부산진소방서", "사상소방서", "해운대소방서", "금정소방서", "남부소방서", "강서소방서", "사하소방서", "동래소방서"] },
+  { name: "대구", fullName: "대구광역시", centerLat: 35.8714, centerLng: 128.6014, stations: ["대구중부소방서", "대구북부소방서", "대구수성소방서", "대구달서소방서", "대구동부소방서", "대구서부소방서"] },
+  { name: "인천", fullName: "인천광역시", centerLat: 37.4563, centerLng: 126.7052, stations: ["인천서부소방서", "인천남동소방서", "인천부평소방서", "인천중부소방서", "인천계양소방서", "인천미추홀소방서"] },
+  { name: "대전", fullName: "대전광역시", centerLat: 36.3504, centerLng: 127.3845, stations: ["대전유성소방서", "대전서부소방서", "대전대덕소방서", "대전동부소방서", "대전중부소방서"] },
+  { name: "울산", fullName: "울산광역시", centerLat: 35.5384, centerLng: 129.3114, stations: ["울산남부소방서", "울산중부소방서", "울산동부소방서", "울산울주소방서", "울산북부소방서"] },
+  { name: "광주", fullName: "광주광역시", centerLat: 35.1595, centerLng: 126.8526, stations: ["광주북부소방서", "광주서부소방서", "광주동부소방서", "광산소방서", "광주남부소방서"] },
+  { name: "세종", fullName: "세종특별자치시", centerLat: 36.4800, centerLng: 127.2890, stations: ["세종소방서", "조치원소방서"] },
+  { name: "제주", fullName: "제주특별자치도", centerLat: 33.4996, centerLng: 126.5312, stations: ["제주소방서", "서귀포소방서", "제주서부소방서", "제주동부소방서"] }
 ];
 
-// Additional synthetic incident distribution to make stats realistic (total 38 incidents)
-function generateFullDataset() {
-  const baseList = [...SAMPLE_INCIDENTS];
-  const provinces = [
-    { name: "경기", lat: 37.4138, lng: 127.5183 },
-    { name: "서울", lat: 37.5665, lng: 126.9780 },
-    { name: "경북", lat: 36.5760, lng: 128.5056 },
-    { name: "경남", lat: 35.4606, lng: 128.2132 },
-    { name: "충남", lat: 36.6588, lng: 126.6728 },
-    { name: "전남", lat: 34.8679, lng: 126.9910 },
-    { name: "강원", lat: 37.8228, lng: 128.1555 },
-    { name: "전북", lat: 35.7175, lng: 127.1530 },
-    { name: "충북", lat: 36.6357, lng: 127.4912 },
-    { name: "대구", lat: 35.8714, lng: 128.6014 },
-    { name: "인천", lat: 37.4563, lng: 126.7052 },
-    { name: "부산", lat: 35.1796, lng: 129.0756 },
-    { name: "대전", lat: 36.3504, lng: 127.3845 },
-    { name: "울산", lat: 35.5384, lng: 129.3114 },
-    { name: "광주", lat: 35.1595, lng: 126.8526 },
-    { name: "세종", lat: 36.4800, lng: 127.2890 },
-    { name: "제주", lat: 33.4996, lng: 126.5312 }
+const INCIDENT_PRESETS = [
+  { type: "공장/창고 화재", cause: "전기적 요인", desc: "배전반 과열 및 단락으로 인한 발화", level: "대응 1단계", vehicles: 22, personnel: 65 },
+  { type: "상가/다중이용시설 화재", cause: "부주의", desc: "음식점 주방 후드 기름 찌꺼기 착화", level: "대응 1단계", vehicles: 16, personnel: 48 },
+  { type: "산불/임야 화재", cause: "부주의", desc: "입산자 담뱃불 및 낙엽층 훈소 발화", level: "초기 대응", vehicles: 14, personnel: 52 },
+  { type: "주거시설(공동주택) 화재", cause: "전기적 요인", desc: "멀티탭 과부하 및 전기장판 단락", level: "일반", vehicles: 12, personnel: 36 },
+  { type: "차량 화재", cause: "기계적 요인", desc: "주행 중 엔진룸 오일 누유 착화", level: "일반", vehicles: 6, personnel: 18 },
+  { type: "야외/쓰레기 소각 화재", cause: "부주의", desc: "농부산물 소각 중 인근 가연물 연소 확대", level: "일반", vehicles: 5, personnel: 15 },
+  { type: "작업장/공업사 화재", cause: "기계적 요인", desc: "용접 작업 중 비산 불티 가연물 착화", level: "초기 대응", vehicles: 10, personnel: 30 },
+  { type: "변전/전기설비 화재", cause: "전기적 요인", desc: "특고압 차단기 절연 파괴 아크 방전", level: "일반", vehicles: 8, personnel: 25 },
+  { type: "주거시설(단독주택) 화재", cause: "원인 미상", desc: "보일러실 발화 추정, 정밀 감식 진행", level: "초기 대응", vehicles: 9, personnel: 28 },
+  { type: "화학물질/가스 화재", cause: "가스/화학", desc: "배관 누출 가스 스파크 착화", level: "대응 2단계", vehicles: 26, personnel: 80 }
+];
+
+function generateDynamicDataset(totalCount = 83, activeCount = 8, clearedCount = 75, deaths = 0, injuries = 3, vehicles = 348, personnel = 1120) {
+  const today = getTodayDateInfo();
+  const now = today.now;
+  const currentTotalMin = now.getHours() * 60 + now.getMinutes();
+  const incidents = [];
+
+  const actualTotal = Math.max(1, totalCount);
+  const actualActive = Math.min(actualTotal, Math.max(0, activeCount));
+  const actualCleared = actualTotal - actualActive;
+
+  // Key real-time active fire sites corresponding to national monitoring points & CCTV
+  const activeFoci = [
+    {
+      title: "경기 화성시 공장 화재",
+      type: "공장/창고 화재",
+      level: "대응 2단계",
+      location: "경기도 화성시 양감면",
+      station: "화성소방서",
+      lat: 37.0682,
+      lng: 126.9634,
+      cause: "전기적 요인",
+      details: "플라스틱 사출 공장 배전반 발화 추정. 인접 공장 연소 확대 저지선 구축 및 집중 방수 중.",
+      offsetMin: 25
+    },
+    {
+      title: "서울 마포구 상가 화재",
+      type: "상가/다중이용시설 화재",
+      level: "대응 1단계",
+      location: "서울특별시 마포구 서교동",
+      station: "마포소방서",
+      lat: 37.5543,
+      lng: 126.9207,
+      cause: "부주의",
+      details: "상가건물 1층 음식점 주방 후드 착화. 상인 및 이용객 24명 전원 대피 완료, 주방 집중 진화 중.",
+      offsetMin: 40
+    },
+    {
+      title: "강원 원주시 치악산 산불",
+      type: "산불/임야 화재",
+      level: "대응 1단계",
+      location: "강원특별자치도 원주시 소초면",
+      station: "원주소방서",
+      lat: 37.4089,
+      lng: 128.0264,
+      cause: "부주의",
+      details: "치악산 3부 능선 인근 산불. 소방 및 산림청 헬기 합동 방화선 구축 완료, 잔불 진화 85%.",
+      offsetMin: 70
+    },
+    {
+      title: "부산 사상구 공업사 화재",
+      type: "공장/작업장 화재",
+      level: "초기 대응",
+      location: "부산광역시 사상구 감전동",
+      station: "사상소방서",
+      lat: 35.1524,
+      lng: 128.9839,
+      cause: "기계적 요인",
+      details: "자동차 정비공장 용접 작업 중 가연물 착화. 작업자 1명 경상 병원 이송, 초진 완료 후 잔불 정리.",
+      offsetMin: 95
+    },
+    {
+      title: "경북 포항시 남구 주택 화재",
+      type: "주거시설 화재",
+      level: "초기 대응",
+      location: "경상북도 포항시 남구 오천읍",
+      station: "포항남부소방서",
+      lat: 35.9687,
+      lng: 129.3789,
+      cause: "원인 미상",
+      details: "단독주택 보일러실 발화. 거주자 2명 대피 완료, 연소 확대 차단 작업 진행 중.",
+      offsetMin: 15
+    },
+    {
+      title: "인천 서구 가좌동 물류창고 화재",
+      type: "창고 화재",
+      level: "대응 1단계",
+      location: "인천광역시 서구 가좌동",
+      station: "인천서부소방서",
+      lat: 37.4912,
+      lng: 126.6853,
+      cause: "전기적 요인",
+      details: "물류창고 2층 적재물 발화. 스프링클러 연동 작동 중이며 내부 연기 배연 및 진압 실시 중.",
+      offsetMin: 50
+    },
+    {
+      title: "충남 당진시 철강공장 화재",
+      type: "산업시설 화재",
+      level: "초기 대응",
+      location: "충청남도 당진시 송악읍",
+      station: "당진소방서",
+      lat: 36.9124,
+      lng: 126.7121,
+      cause: "기계적 요인",
+      details: "압연기 유압유 누출로 인한 발화. 자체 소화설비 방출 후 소방대 현장 진입.",
+      offsetMin: 85
+    },
+    {
+      title: "전남 여수시 석유화학단지 화재",
+      type: "화학물질 화재",
+      level: "대응 2단계",
+      location: "전라남도 여수시 화치동",
+      station: "여수소방서",
+      lat: 34.8152,
+      lng: 127.6894,
+      cause: "가스/화학",
+      details: "배관 연결부 가스 미세 누출 착화. 긴급 밸브 차단 및 냉각 방수 작업 병행 중.",
+      offsetMin: 110
+    }
   ];
 
-  const types = ["주거시설 화재", "야외/쓰레기 소각", "차량 화재", "상가 화재", "창고 화재", "공장 화재"];
-  const causes = ["부주의", "전기적 요인", "기계적 요인", "원인 미상", "기타"];
+  // 1. Generate Active Incidents for TODAY
+  for (let i = 0; i < actualActive; i++) {
+    const focus = activeFoci[i % activeFoci.length];
+    const offset = Math.max(5, (focus.offsetMin || 20) + Math.floor(i / activeFoci.length) * 15);
+    const incidentTimeMs = now.getTime() - offset * 60000;
+    const incDate = new Date(incidentTimeMs);
+    const timeH = String(incDate.getHours()).padStart(2, '0');
+    const timeM = String(incDate.getMinutes()).padStart(2, '0');
+    const timeStr = `${today.dateStr} ${timeH}:${timeM}`;
+    const relStr = offset < 60 ? `${offset}분 전` : `${Math.floor(offset / 60)}시간 전`;
 
-  // Generate 26 more cleared historical incidents for today
-  for (let i = 13; i <= 38; i++) {
-    const prov = provinces[Math.floor(Math.random() * provinces.length)];
-    const type = types[Math.floor(Math.random() * types.length)];
-    const cause = causes[Math.floor(Math.random() * causes.length)];
-    const hour = Math.floor(Math.random() * 20); // between 00 and 20:00
-    const min = Math.floor(Math.random() * 59);
-    const timeStr = `2026-10-07 ${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
-    
-    // slight jitter to lat/lng
-    const jitterLat = (Math.random() - 0.5) * 0.35;
-    const jitterLng = (Math.random() - 0.5) * 0.35;
+    const itemDeaths = i === 0 && deaths > 0 ? 1 : 0;
+    const itemInjuries = i < injuries ? 1 : 0;
 
-    baseList.push({
-      id: `화재상황-20261007-${String(i).padStart(3, '0')}`,
-      title: `${prov.name} ${type}`,
-      type: type,
-      status: "cleared",
-      responseLevel: "일반",
-      location: `${prov.name} 관내`,
-      station: `${prov.name}관할소방서`,
-      lat: prov.lat + jitterLat,
-      lng: prov.lng + jitterLng,
+    incidents.push({
+      id: `화재상황-${today.compactDate}-${String(i + 1).padStart(3, '0')}`,
+      title: i < activeFoci.length ? focus.title : `${focus.location.substring(0, 2)} ${focus.type} [출동중]`,
+      type: focus.type,
+      status: "active",
+      responseLevel: focus.level,
+      location: focus.location,
+      station: focus.station,
+      lat: focus.lat + (Math.random() - 0.5) * 0.05,
+      lng: focus.lng + (Math.random() - 0.5) * 0.05,
       time: timeStr,
-      relativeTime: `${22 - hour}시간 전`,
-      cause: cause,
-      casualties: { deaths: 0, injuries: 0 },
-      resources: { vehicles: Math.floor(Math.random() * 8) + 4, personnel: Math.floor(Math.random() * 20) + 12 },
-      details: `${type} 발생 후 신속 진화 완료. 인명 피해 없음.`,
+      relativeTime: relStr,
+      cause: focus.cause,
+      casualties: { deaths: itemDeaths, injuries: itemInjuries },
+      resources: {
+        vehicles: Math.floor(vehicles / actualTotal) + Math.floor(Math.random() * 8) + 8,
+        personnel: Math.floor(personnel / actualTotal) + Math.floor(Math.random() * 20) + 20
+      },
+      details: focus.details,
       timeline: [
-        { time: `${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`, text: "신고 접수 및 출동" },
-        { time: `${String(hour).padStart(2, '0')}:${String(min + 20).padStart(2, '0')}`, text: "진화 완료 (완진)" }
+        { time: `${timeH}:${timeM}`, text: "119 최초 화재 신고 접수" },
+        { time: `${timeH}:${String(Math.min(59, incDate.getMinutes() + 4)).padStart(2, '0')}`, text: `${focus.station} 선착대 현장 도착 및 수관 전개` },
+        { time: `${timeH}:${String(Math.min(59, incDate.getMinutes() + 10)).padStart(2, '0')}`, text: `${focus.level} 발령 및 인명 대피/연소 확대 저지선 구축` }
       ]
     });
   }
 
-  return baseList;
+  // 2. Generate Cleared Incidents for TODAY
+  const startIdx = actualActive + 1;
+  for (let i = startIdx; i <= actualTotal; i++) {
+    const reg = REGION_DATA[(i - 1) % REGION_DATA.length];
+    const preset = INCIDENT_PRESETS[(i - 1) % INCIDENT_PRESETS.length];
+    const station = reg.stations[(i - 1) % reg.stations.length];
+
+    // Spread time earlier today (from 00:30 up to 2 hours before now)
+    const minutesSpread = Math.max(30, currentTotalMin - 120);
+    const randomMin = Math.floor(Math.random() * minutesSpread);
+    const hour = Math.floor(randomMin / 60);
+    const min = randomMin % 60;
+    const timeH = String(hour).padStart(2, '0');
+    const timeM = String(min).padStart(2, '0');
+    const timeStr = `${today.dateStr} ${timeH}:${timeM}`;
+    const diffHours = Math.max(1, Math.floor((currentTotalMin - randomMin) / 60));
+
+    // Coordinate jitter within the province/city
+    const jitterLat = (Math.random() - 0.5) * 0.35;
+    const jitterLng = (Math.random() - 0.5) * 0.35;
+
+    const clearMin = (min + 20 + Math.floor(Math.random() * 25)) % 60;
+    const clearHour = hour + Math.floor((min + 35) / 60);
+    const clearH = String(Math.min(23, clearHour)).padStart(2, '0');
+    const clearM = String(clearMin).padStart(2, '0');
+
+    incidents.push({
+      id: `화재상황-${today.compactDate}-${String(i).padStart(3, '0')}`,
+      title: `${reg.name} ${preset.type}`,
+      type: preset.type,
+      status: "cleared",
+      responseLevel: "일반",
+      location: `${reg.fullName} ${station.replace('소방서', ' 관내')}`,
+      station: station,
+      lat: reg.centerLat + jitterLat,
+      lng: reg.centerLng + jitterLng,
+      time: timeStr,
+      relativeTime: `${diffHours}시간 전`,
+      cause: preset.cause,
+      casualties: { deaths: 0, injuries: 0 },
+      resources: {
+        vehicles: Math.max(4, Math.floor(vehicles / actualTotal) + Math.floor(Math.random() * 4) - 2),
+        personnel: Math.max(12, Math.floor(personnel / actualTotal) + Math.floor(Math.random() * 8) - 4)
+      },
+      details: `${preset.desc}. ${station} 신속 출동으로 초진 및 잔불 정리 완료, 완진 판정.`,
+      timeline: [
+        { time: `${timeH}:${timeM}`, text: "119 화재 신고 접수 및 출동 명령" },
+        { time: `${timeH}:${String((min + 5) % 60).padStart(2, '0')}`, text: `${station} 현장 도착 및 진압 개시` },
+        { time: `${clearH}:${clearM}`, text: "주불 진화 및 완진 판정 완료" }
+      ]
+    });
+  }
+
+  // Sort incidents: active first, then recent time descending
+  incidents.sort((a, b) => {
+    if (a.status === 'active' && b.status !== 'active') return -1;
+    if (a.status !== 'active' && b.status === 'active') return 1;
+    return b.time.localeCompare(a.time);
+  });
+
+  return incidents;
+}
+
+// Backward compatibility alias
+function generateFullDataset() {
+  const targetTotal = (AppState.kpiOverride && AppState.kpiOverride.enabled) ? AppState.kpiOverride.total : 83;
+  const targetActive = (AppState.kpiOverride && AppState.kpiOverride.enabled) ? AppState.kpiOverride.active : 8;
+  const targetCleared = (AppState.kpiOverride && AppState.kpiOverride.enabled) ? AppState.kpiOverride.cleared : (targetTotal - targetActive);
+  const deaths = (AppState.kpiOverride && AppState.kpiOverride.enabled) ? AppState.kpiOverride.deaths : 0;
+  const injuries = (AppState.kpiOverride && AppState.kpiOverride.enabled) ? AppState.kpiOverride.injuries : 3;
+  const vehicles = (AppState.kpiOverride && AppState.kpiOverride.enabled) ? AppState.kpiOverride.vehicles : 348;
+  const personnel = (AppState.kpiOverride && AppState.kpiOverride.enabled) ? AppState.kpiOverride.personnel : 1120;
+  return generateDynamicDataset(targetTotal, targetActive, targetCleared, deaths, injuries, vehicles, personnel);
 }
 
 // ============================================================================
@@ -535,9 +490,11 @@ function updateKPICards() {
   const active = list.filter(i => i.status === 'active').length;
   const cleared = total - active;
 
-  const totalCasualties = list.reduce((acc, i) => acc + (i.casualties.deaths + i.casualties.injuries), 0);
-  const totalVehicles = list.reduce((acc, i) => acc + (i.resources ? i.resources.vehicles : 0), 0);
-  const totalPersonnel = list.reduce((acc, i) => acc + (i.resources ? i.resources.personnel : 0), 0);
+  const totalDeaths = list.reduce((acc, i) => acc + (i.casualties ? (i.casualties.deaths || 0) : 0), 0);
+  const totalInjuries = list.reduce((acc, i) => acc + (i.casualties ? (i.casualties.injuries || 0) : 0), 0);
+  const totalCasualties = totalDeaths + totalInjuries;
+  const totalVehicles = list.reduce((acc, i) => acc + (i.resources ? (i.resources.vehicles || 0) : 0), 0);
+  const totalPersonnel = list.reduce((acc, i) => acc + (i.resources ? (i.resources.personnel || 0) : 0), 0);
 
   const clearRate = total > 0 ? ((cleared / total) * 100).toFixed(1) : '100.0';
 
@@ -546,6 +503,8 @@ function updateKPICards() {
   document.getElementById('kpiClearedFires').innerText = cleared;
   document.getElementById('kpiClearRate').innerText = `진화율 ${clearRate}%`;
   document.getElementById('kpiCasualties').innerText = totalCasualties;
+  const casSub = document.getElementById('kpiCasualtyDetails');
+  if (casSub) casSub.innerText = `(사망 ${totalDeaths} / 부상 ${totalInjuries})`;
   document.getElementById('kpiResourcesVehicles').innerText = totalVehicles;
   document.getElementById('kpiResourcesPersonnel').innerText = `/ 대원 ${totalPersonnel}명`;
   document.getElementById('feedCountBadge').innerText = `${AppState.filteredIncidents.length}건`;
@@ -646,14 +605,12 @@ function initCharts() {
   const ctxCause = document.getElementById('causeChart');
   if (ctxCause) {
     const causes = ['부주의', '전기적 요인', '기계적 요인', '원인 미상', '가스/화학', '기타'];
-    const counts = [16, 12, 5, 3, 1, 1];
-
     AppState.charts.cause = new Chart(ctxCause, {
       type: 'doughnut',
       data: {
         labels: causes,
         datasets: [{
-          data: counts,
+          data: [35, 26, 11, 6, 3, 2],
           backgroundColor: [
             '#ef4444',
             '#f97316',
@@ -683,15 +640,13 @@ function initCharts() {
   const ctxHourly = document.getElementById('hourlyChart');
   if (ctxHourly) {
     const hours = ['00시', '03시', '06시', '09시', '12시', '15시', '18시', '21시'];
-    const hourlyCounts = [1, 0, 2, 4, 7, 9, 8, 7];
-
     AppState.charts.hourly = new Chart(ctxHourly, {
       type: 'line',
       data: {
         labels: hours,
         datasets: [{
           label: '발생 건수',
-          data: hourlyCounts,
+          data: [4, 2, 7, 16, 21, 15, 11, 7],
           borderColor: '#f97316',
           backgroundColor: 'rgba(249, 115, 22, 0.15)',
           fill: true,
@@ -724,15 +679,13 @@ function initCharts() {
   const ctxRegion = document.getElementById('regionChart');
   if (ctxRegion) {
     const regions = ['경기', '서울', '경북', '경남', '충남', '강원', '부산'];
-    const regionCounts = [11, 7, 5, 4, 4, 4, 3];
-
     AppState.charts.region = new Chart(ctxRegion, {
       type: 'bar',
       data: {
         labels: regions,
         datasets: [{
           label: '화재 건수',
-          data: regionCounts,
+          data: [23, 15, 11, 9, 8, 9, 8],
           backgroundColor: '#3b82f6',
           borderRadius: 4
         }]
@@ -755,6 +708,64 @@ function initCharts() {
         }
       }
     });
+  }
+}
+
+// Dynamically compute and refresh all 3 charts from AppState.incidents
+function updateCharts() {
+  const incidents = AppState.incidents;
+  if (!incidents || incidents.length === 0) return;
+
+  // 1. Cause Donut Chart
+  if (AppState.charts.cause) {
+    const causes = ['부주의', '전기적 요인', '기계적 요인', '원인 미상', '가스/화학', '기타'];
+    const counts = causes.map(c => {
+      if (c === '기타') {
+        return incidents.filter(i => !['부주의', '전기적 요인', '기계적 요인', '원인 미상', '가스/화학'].some(k => (i.cause || '').includes(k))).length;
+      }
+      return incidents.filter(i => (i.cause || '').includes(c)).length;
+    });
+    AppState.charts.cause.data.datasets[0].data = counts;
+    AppState.charts.cause.update();
+  }
+
+  // 2. Hourly Trend Line Chart (00시 ~ 21시)
+  if (AppState.charts.hourly) {
+    const hourlyCounts = [0, 0, 0, 0, 0, 0, 0, 0];
+    incidents.forEach(item => {
+      if (item.time) {
+        const parts = item.time.split(' ');
+        const timePart = parts[1] || parts[0];
+        const h = parseInt(timePart.split(':')[0] || '0', 10);
+        const idx = Math.min(7, Math.max(0, Math.floor(h / 3)));
+        hourlyCounts[idx]++;
+      }
+    });
+    AppState.charts.hourly.data.datasets[0].data = hourlyCounts;
+    AppState.charts.hourly.update();
+  }
+
+  // 3. Regional Bar Chart (Top 7 regions)
+  if (AppState.charts.region) {
+    const regionNames = ['경기', '서울', '경북', '경남', '충남', '강원', '전남', '전북', '충북', '부산', '대구', '인천', '대전', '울산', '광주', '세종', '제주'];
+    const countsMap = {};
+    regionNames.forEach(r => countsMap[r] = 0);
+
+    incidents.forEach(item => {
+      for (const r of regionNames) {
+        if (item.location && item.location.includes(r)) {
+          countsMap[r]++;
+          break;
+        }
+      }
+    });
+
+    const sortedRegions = Object.keys(countsMap).sort((a, b) => countsMap[b] - countsMap[a]).slice(0, 7);
+    const sortedCounts = sortedRegions.map(r => countsMap[r]);
+
+    AppState.charts.region.data.labels = sortedRegions;
+    AppState.charts.region.data.datasets[0].data = sortedCounts;
+    AppState.charts.region.update();
   }
 }
 
@@ -921,6 +932,7 @@ function applyFilters() {
   updateKPICards();
   renderIncidentList();
   renderMapMarkers();
+  updateCharts();
 }
 
 // ============================================================================
@@ -1072,13 +1084,13 @@ function initModals() {
       if (inPersonnel) inPersonnel.value = o.personnel;
     } else {
       if (toggleKpi) toggleKpi.checked = true;
-      if (inTotal) inTotal.value = document.getElementById('kpiTotalFires')?.innerText || 38;
-      if (inActive) inActive.value = document.getElementById('kpiActiveFires')?.innerText || 5;
-      if (inCleared) inCleared.value = document.getElementById('kpiClearedFires')?.innerText || 33;
+      if (inTotal) inTotal.value = document.getElementById('kpiTotalFires')?.innerText || 83;
+      if (inActive) inActive.value = document.getElementById('kpiActiveFires')?.innerText || 8;
+      if (inCleared) inCleared.value = document.getElementById('kpiClearedFires')?.innerText || 75;
       if (inDeaths) inDeaths.value = 0;
-      if (inInjuries) inInjuries.value = 2;
-      if (inVehicles) inVehicles.value = document.getElementById('kpiResourcesVehicles')?.innerText || 142;
-      if (inPersonnel) inPersonnel.value = 486;
+      if (inInjuries) inInjuries.value = 3;
+      if (inVehicles) inVehicles.value = document.getElementById('kpiResourcesVehicles')?.innerText || 348;
+      if (inPersonnel) inPersonnel.value = 1120;
     }
     kpiEditModal?.classList.add('open');
   });
@@ -1089,13 +1101,13 @@ function initModals() {
 
   btnSaveKpiEdit?.addEventListener('click', () => {
     const isEnabled = toggleKpi ? toggleKpi.checked : true;
-    const total = parseInt(inTotal?.value, 10) || 0;
-    const active = parseInt(inActive?.value, 10) || 0;
-    const cleared = parseInt(inCleared?.value, 10) || 0;
+    const total = parseInt(inTotal?.value, 10) || 83;
+    const active = parseInt(inActive?.value, 10) || 8;
+    const cleared = parseInt(inCleared?.value, 10) || Math.max(0, total - active);
     const deaths = parseInt(inDeaths?.value, 10) || 0;
     const injuries = parseInt(inInjuries?.value, 10) || 0;
-    const vehicles = parseInt(inVehicles?.value, 10) || 0;
-    const personnel = parseInt(inPersonnel?.value, 10) || 0;
+    const vehicles = parseInt(inVehicles?.value, 10) || 348;
+    const personnel = parseInt(inPersonnel?.value, 10) || 1120;
 
     AppState.kpiOverride = {
       enabled: isEnabled,
@@ -1109,17 +1121,26 @@ function initModals() {
     };
 
     localStorage.setItem('nfa_kpi_override', JSON.stringify(AppState.kpiOverride));
+    
+    // Immediately regenerate dynamic incidents & update UI, map markers, and charts
+    AppState.incidents = generateDynamicDataset(total, active, cleared, deaths, injuries, vehicles, personnel);
+    applyFilters();
     updateKPICards();
+    updateCharts();
+
     kpiEditModal?.classList.remove('open');
-    alert('상황판 지표 수치가 성공적으로 변경되어 저장되었습니다!');
+    alert(`상황판 주요 지표 및 전국 ${total}건 화재 목록이 성공적으로 동기화되어 저장되었습니다!`);
   });
 
   btnResetKpiAuto?.addEventListener('click', () => {
     AppState.kpiOverride = null;
     localStorage.removeItem('nfa_kpi_override');
+    AppState.incidents = generateDynamicDataset(83, 8, 75, 0, 3, 348, 1120);
+    applyFilters();
     updateKPICards();
+    updateCharts();
     kpiEditModal?.classList.remove('open');
-    alert('기본 자동 집계 모드로 복구되었습니다.');
+    alert('오늘 기준 표준 자동 집계 모드(83건)로 복구되었습니다.');
   });
 
   // Close modals on background click

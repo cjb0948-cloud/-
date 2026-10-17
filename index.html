@@ -42,8 +42,8 @@
 
     <div class="header-right">
       <div class="clock-display" id="clockDisplay">
-        <span class="date-part">2026. 10. 07 (수)</span>
-        <span class="time-part">22:25:00</span>
+        <span class="date-part" id="clockDatePart">실시간 동기화 중...</span>
+        <span class="time-part">12:00:00</span>
       </div>
       
       <div class="header-actions">
@@ -87,9 +87,9 @@
       <div class="kpi-info">
         <span class="kpi-label">금일 전국 화재 발생</span>
         <div class="kpi-value-row">
-          <span class="kpi-value" id="kpiTotalFires">38</span>
+          <span class="kpi-value" id="kpiTotalFires">83</span>
           <span class="kpi-unit">건</span>
-          <span class="kpi-trend up" id="kpiTotalTrend"><i class="fa-solid fa-arrow-trend-up"></i> +4건</span>
+          <span class="kpi-trend up" id="kpiTotalTrend"><i class="fa-solid fa-arrow-trend-up"></i> 실시간</span>
         </div>
       </div>
     </div>
@@ -101,7 +101,7 @@
       <div class="kpi-info">
         <span class="kpi-label">현재 진압 / 출동 중</span>
         <div class="kpi-value-row">
-          <span class="kpi-value highlight-red" id="kpiActiveFires">5</span>
+          <span class="kpi-value highlight-red" id="kpiActiveFires">8</span>
           <span class="kpi-unit">건</span>
           <span class="kpi-subtext" id="kpiActiveSub">대응 1~2단계 발령중</span>
         </div>
@@ -115,9 +115,9 @@
       <div class="kpi-info">
         <span class="kpi-label">진화 완료 (완진)</span>
         <div class="kpi-value-row">
-          <span class="kpi-value" id="kpiClearedFires">33</span>
+          <span class="kpi-value" id="kpiClearedFires">75</span>
           <span class="kpi-unit">건</span>
-          <span class="kpi-rate" id="kpiClearRate">진화율 86.8%</span>
+          <span class="kpi-rate" id="kpiClearRate">진화율 90.4%</span>
         </div>
       </div>
     </div>
@@ -129,9 +129,9 @@
       <div class="kpi-info">
         <span class="kpi-label">인명 피해 현황</span>
         <div class="kpi-value-row">
-          <span class="kpi-value" id="kpiCasualties">2</span>
+          <span class="kpi-value" id="kpiCasualties">3</span>
           <span class="kpi-unit">명</span>
-          <span class="kpi-subtext" id="kpiCasualtyDetails">(사망 0 / 부상 2)</span>
+          <span class="kpi-subtext" id="kpiCasualtyDetails">(사망 0 / 부상 3)</span>
         </div>
       </div>
     </div>
@@ -597,17 +597,17 @@
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 8px;">
             <div class="form-group">
               <label for="editTotalFires">금일 전국 화재 발생 건수 (건)</label>
-              <input type="number" id="editTotalFires" class="form-control" min="0" placeholder="예: 25">
+              <input type="number" id="editTotalFires" class="form-control" min="0" placeholder="예: 83">
             </div>
 
             <div class="form-group">
               <label for="editActiveFires">현재 진압 / 출동 중 (건)</label>
-              <input type="number" id="editActiveFires" class="form-control" min="0" placeholder="예: 3">
+              <input type="number" id="editActiveFires" class="form-control" min="0" placeholder="예: 8">
             </div>
 
             <div class="form-group">
               <label for="editClearedFires">진화 완료 (완진) 건수 (건)</label>
-              <input type="number" id="editClearedFires" class="form-control" min="0" placeholder="예: 22">
+              <input type="number" id="editClearedFires" class="form-control" min="0" placeholder="예: 75">
             </div>
 
             <div class="form-group">
@@ -617,17 +617,17 @@
 
             <div class="form-group">
               <label for="editInjuries">인명 피해 - 부상자 수 (명)</label>
-              <input type="number" id="editInjuries" class="form-control" min="0" placeholder="예: 1">
+              <input type="number" id="editInjuries" class="form-control" min="0" placeholder="예: 3">
             </div>
 
             <div class="form-group">
               <label for="editVehicles">투입 소방차량 수 (대)</label>
-              <input type="number" id="editVehicles" class="form-control" min="0" placeholder="예: 85">
+              <input type="number" id="editVehicles" class="form-control" min="0" placeholder="예: 348">
             </div>
 
             <div class="form-group" style="grid-column: span 2;">
               <label for="editPersonnel">투입 소방대원 수 (명)</label>
-              <input type="number" id="editPersonnel" class="form-control" min="0" placeholder="예: 260">
+              <input type="number" id="editPersonnel" class="form-control" min="0" placeholder="예: 1120">
             </div>
           </div>
         </form>
